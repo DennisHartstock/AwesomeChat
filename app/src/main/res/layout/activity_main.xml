@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <ListView
+        android:id="@+id/messageListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/newMessageLayout"
@@ -17,15 +18,15 @@
     <LinearLayout
         android:id="@+id/newMessageLayout"
         android:layout_width="match_parent"
-        android:layout_alignParentBottom="true"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal">
 
-        <ImageView
+        <ImageButton
+            android:id="@+id/sendImageButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/ic_baseline_insert_photo_24"
-            android:id="@+id/sendImageButton"/>
+            android:background="@drawable/ic_baseline_insert_photo_24" />
 
         <EditText
             android:id="@+id/messageEditText"
@@ -38,14 +39,16 @@
             android:id="@+id/sendButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:text="send" />
 
     </LinearLayout>
 
     <ProgressBar
+        android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true" />
 
 
 </RelativeLayout>
