@@ -1,17 +1,24 @@
 package com.example.awesomechat;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +31,17 @@ public class MainActivity extends AppCompatActivity {
     private EditText messageEditText;
     private Button sendButton;
     private String userName;
+    FirebaseDatabase database;
+    DatabaseReference messagesDatabaseReference;
+    ChildEventListener messagesChildEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        database = FirebaseDatabase.getInstance("https://awesome-chat-72589-default-rtdb.europe-west1.firebasedatabase.app/");
+        messagesDatabaseReference = database.getReference().child("messages");
 
         messageListView = findViewById(R.id.messageListView);
         List<AwesomeMessage> awesomeMessages = new ArrayList<>();
@@ -64,19 +77,48 @@ public class MainActivity extends AppCompatActivity {
         });
         messageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(500)});
 
-        sendImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        sendImageButton.setOnClickListener(view -> {
 
-            }
         });
 
-        sendButton.setOnClickListener(new View.OnClickListener() {
+        sendButton.setOnClickListener(view -> {
+            AwesomeMessage message = new AwesomeMessage();
+            message.setText(messageEditText.getText().toString());
+            message.setName(userName);
+            message.setImageUrl(null);
+
+            messagesDatabaseReference.push().setValue(message);
+
+            messageEditText.setText("");
+        });
+
+        messagesChildEventListener = new ChildEventListener() {
             @Override
-            public void onClick(View view) {
-                messageEditText.setText("");
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                AwesomeMessage message = snapshot.getValue(AwesomeMessage.class);
+                adapter.add(message);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
             }
-        });
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        messagesDatabaseReference.addChildEventListener(messagesChildEventListener);
     }
 }
