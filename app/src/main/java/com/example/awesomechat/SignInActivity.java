@@ -45,46 +45,69 @@ public class SignInActivity extends AppCompatActivity {
 
         signUpLogInButton.setOnClickListener(view -> signUpLogInUser(emailEditText.getText().toString().trim(),
                 passwordEditText.getText().toString().trim()));
+
+        if (auth.getCurrentUser() != null) {
+            startActivity(new Intent(SignInActivity.this, MainActivity.class));
+        }
     }
 
     private void signUpLogInUser(String email, String password) {
 
         if (isLogInModeActive) {
-            auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, task -> {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = auth.getCurrentUser();
-                            //updateUI(user);
-                            startActivity(new Intent(SignInActivity.this, MainActivity.class));
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(SignInActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_LONG).show();
-                            //updateUI(null);
-                        }
-                    });
+            if (nameEditText.getText().toString().trim().equals("")) {
+                Toast.makeText(this, "Please enter your name", Toast.LENGTH_LONG).show();
+            } else if (emailEditText.getText().toString().trim().equals("")) {
+                Toast.makeText(this, "Please enter your email", Toast.LENGTH_LONG).show();
+            } else if (passwordEditText.getText().toString().trim().length() < 6) {
+                Toast.makeText(this, "Password must be at least 6 chars", Toast.LENGTH_LONG).show();
+            } else {
+                auth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, task -> {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "signInWithEmail:success");
+                                FirebaseUser user = auth.getCurrentUser();
+                                //updateUI(user);
+                                startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "signInWithEmail:failure", task.getException());
+                                Toast.makeText(SignInActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_LONG).show();
+                                //updateUI(null);
+                            }
+                        });
+            }
         } else {
-            auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, task -> {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            Toast.makeText(SignInActivity.this, "User created", Toast.LENGTH_LONG).show();
-                            FirebaseUser user = auth.getCurrentUser();
-                            //updateUI(user);
-                            startActivity(new Intent(SignInActivity.this, MainActivity.class));
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(SignInActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_LONG).show();
-                            //updateUI(null);
-                        }
-                    });
+            if (nameEditText.getText().toString().trim().equals("")) {
+                Toast.makeText(this, "Please enter your name", Toast.LENGTH_LONG).show();
+            } else if (emailEditText.getText().toString().trim().equals("")) {
+                Toast.makeText(this, "Please enter your email", Toast.LENGTH_LONG).show();
+            } else if (passwordEditText.getText().toString().trim().length() < 6) {
+                Toast.makeText(this, "Password must be at least 6 chars", Toast.LENGTH_LONG).show();
+            } else if (!passwordEditText.getText().toString().trim().equals(confirmPasswordEditText.getText().toString().trim())) {
+                Toast.makeText(this, "Passwords don't match", Toast.LENGTH_LONG).show();
+            } else {
+                auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, task -> {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "createUserWithEmail:success");
+                                Toast.makeText(SignInActivity.this, "User created", Toast.LENGTH_LONG).show();
+                                FirebaseUser user = auth.getCurrentUser();
+                                //updateUI(user);
+                                startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                Toast.makeText(SignInActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_LONG).show();
+                                //updateUI(null);
+                            }
+                        });
+            }
         }
+
     }
 
     public void toggleLoginMode(View view) {
