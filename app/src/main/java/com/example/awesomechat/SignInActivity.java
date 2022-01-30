@@ -17,6 +17,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignInActivity extends AppCompatActivity {
     private static final String TAG = "SignInActivity";
@@ -28,6 +30,8 @@ public class SignInActivity extends AppCompatActivity {
     private Button signUpLogInButton;
     private TextView toggleTextView;
     private boolean isLogInModeActive;
+    FirebaseDatabase database;
+    DatabaseReference usersDatabaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +39,8 @@ public class SignInActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_in);
 
         auth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance("https://awesome-chat-72589-default-rtdb.europe-west1.firebasedatabase.app/");
+        usersDatabaseReference = database.getReference().child("users");
 
         nameEditText = findViewById(R.id.nameEditText);
         emailEditText = findViewById(R.id.emailEditText);
@@ -67,8 +73,10 @@ public class SignInActivity extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInWithEmail:success");
                                 FirebaseUser user = auth.getCurrentUser();
+                                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                                intent.putExtra("userName", nameEditText.getText().toString().trim());
+                                startActivity(intent);
                                 //updateUI(user);
-                                startActivity(new Intent(SignInActivity.this, MainActivity.class));
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -95,8 +103,11 @@ public class SignInActivity extends AppCompatActivity {
                                 Log.d(TAG, "createUserWithEmail:success");
                                 Toast.makeText(SignInActivity.this, "User created", Toast.LENGTH_LONG).show();
                                 FirebaseUser user = auth.getCurrentUser();
+                                createUser(user);
+                                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                                intent.putExtra("userName", nameEditText.getText().toString().trim());
+                                startActivity(intent);
                                 //updateUI(user);
-                                startActivity(new Intent(SignInActivity.this, MainActivity.class));
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -108,6 +119,15 @@ public class SignInActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private void createUser(FirebaseUser firebaseUser) {
+        User user = new User();
+        user.setName(nameEditText.getText().toString().trim());
+        user.setEmail(firebaseUser.getEmail());
+        user.setId(firebaseUser.getUid());
+
+        usersDatabaseReference.push().setValue(user);
     }
 
     public void toggleLoginMode(View view) {
