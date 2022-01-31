@@ -1,6 +1,7 @@
 package com.example.awesomechat;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -18,12 +19,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +43,14 @@ public class MainActivity extends AppCompatActivity {
     private EditText messageEditText;
     private Button sendButton;
     private String userName;
+    private static final int RC_IMAGE_PICKER = 123;
     FirebaseDatabase database;
     DatabaseReference messagesDatabaseReference;
     ChildEventListener messagesChildEventListener;
     DatabaseReference usersDatabaseReference;
     ChildEventListener usersChildEventListener;
+    FirebaseStorage storage;
+    StorageReference chatImageStorageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance("https://awesome-chat-72589-default-rtdb.europe-west1.firebasedatabase.app/");
         messagesDatabaseReference = database.getReference().child("messages");
         usersDatabaseReference = database.getReference().child("users");
+        storage = FirebaseStorage.getInstance();
+        chatImageStorageReference = storage.getReference().child("chat_images");
 
         messageListView = findViewById(R.id.messageListView);
         List<AwesomeMessage> awesomeMessages = new ArrayList<>();
@@ -60,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
         messageEditText = findViewById(R.id.messageEditText);
         sendButton = findViewById(R.id.sendButton);
 
-        Intent intent = getIntent();
-        userName = intent.getStringExtra("userName");
+        Intent UserNameIntent = getIntent();
+        userName = UserNameIntent.getStringExtra("userName");
 
         progressBar.setVisibility(ProgressBar.INVISIBLE);
 
@@ -88,7 +100,10 @@ public class MainActivity extends AppCompatActivity {
         messageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(500)});
 
         sendImageButton.setOnClickListener(view -> {
-
+            Intent sendImageButtonIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            sendImageButtonIntent.setType("image/*");
+            sendImageButtonIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            startActivityForResult(Intent.createChooser(sendImageButtonIntent, "Choose an image"), RC_IMAGE_PICKER);
         });
 
         sendButton.setOnClickListener(view -> {
@@ -181,6 +196,36 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_IMAGE_PICKER && resultCode == RESULT_OK) {
+            Uri selectedImageUri = data.getData();
+            StorageReference imageReference = chatImageStorageReference.child(selectedImageUri.getLastPathSegment());
+            UploadTask uploadTask = imageReference.putFile(selectedImageUri);
+
+            Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+
+                // Continue with the task to get the download URL
+                return imageReference.getDownloadUrl();
+            }).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+                    AwesomeMessage message = new AwesomeMessage();
+                    message.setImageUrl(downloadUri.toString());
+                    message.setName(userName);
+                    messagesDatabaseReference.push().setValue(message);
+                } else {
+                    // Handle failures
+                    // ...
+                }
+            });
         }
     }
 }
