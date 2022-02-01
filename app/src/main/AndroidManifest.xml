@@ -10,7 +10,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AwesomeChat">
         <activity
-            android:name=".MainActivity"
+            android:name=".UserListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChatActivity"
             android:exported="false" />
         <activity
             android:name=".SignInActivity"

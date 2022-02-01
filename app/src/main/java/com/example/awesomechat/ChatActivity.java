@@ -19,8 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -35,7 +33,7 @@ import com.google.firebase.storage.UploadTask;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity {
     private ListView messageListView;
     private AwesomeMessageAdapter adapter;
     private ProgressBar progressBar;
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chat);
 
         database = FirebaseDatabase.getInstance("https://awesome-chat-72589-default-rtdb.europe-west1.firebasedatabase.app/");
         messagesDatabaseReference = database.getReference().child("messages");
@@ -192,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.sign_out:
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(MainActivity.this, SignInActivity.class));
+                startActivity(new Intent(ChatActivity.this, SignInActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

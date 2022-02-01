@@ -9,12 +9,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -53,7 +49,7 @@ public class SignInActivity extends AppCompatActivity {
                 passwordEditText.getText().toString().trim()));
 
         if (auth.getCurrentUser() != null) {
-            startActivity(new Intent(SignInActivity.this, MainActivity.class));
+            startActivity(new Intent(SignInActivity.this, UserListActivity.class));
         }
     }
 
@@ -73,7 +69,7 @@ public class SignInActivity extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInWithEmail:success");
                                 FirebaseUser user = auth.getCurrentUser();
-                                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                                Intent intent = new Intent(SignInActivity.this, UserListActivity.class);
                                 intent.putExtra("userName", nameEditText.getText().toString().trim());
                                 startActivity(intent);
                                 //updateUI(user);
@@ -104,7 +100,7 @@ public class SignInActivity extends AppCompatActivity {
                                 Toast.makeText(SignInActivity.this, "User created", Toast.LENGTH_LONG).show();
                                 FirebaseUser user = auth.getCurrentUser();
                                 createUser(user);
-                                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                                Intent intent = new Intent(SignInActivity.this, UserListActivity.class);
                                 intent.putExtra("userName", nameEditText.getText().toString().trim());
                                 startActivity(intent);
                                 //updateUI(user);
