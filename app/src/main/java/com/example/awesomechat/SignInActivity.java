@@ -18,7 +18,9 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class SignInActivity extends AppCompatActivity {
     private static final String TAG = "SignInActivity";
+
     private FirebaseAuth auth;
+
     private EditText nameEditText;
     private EditText emailEditText;
     private EditText passwordEditText;
@@ -26,8 +28,9 @@ public class SignInActivity extends AppCompatActivity {
     private Button signUpLogInButton;
     private TextView toggleTextView;
     private boolean isLogInModeActive;
-    FirebaseDatabase database;
-    DatabaseReference usersDatabaseReference;
+
+    private FirebaseDatabase database;
+    private DatabaseReference usersDatabaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

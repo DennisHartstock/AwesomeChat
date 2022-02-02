@@ -4,14 +4,18 @@ public class AwesomeMessage {
     private String name;
     private String text;
     private String imageUrl;
+    private String sender;
+    private String recipient;
 
     public AwesomeMessage() {
     }
 
-    public AwesomeMessage(String name, String text, String imageUrl) {
+    public AwesomeMessage(String name, String text, String imageUrl, String sender, String recipient) {
         this.name = name;
         this.text = text;
         this.imageUrl = imageUrl;
+        this.sender = sender;
+        this.recipient = recipient;
     }
 
     public String getName() {
@@ -36,5 +40,21 @@ public class AwesomeMessage {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public String getRecipient() {
+        return recipient;
+    }
+
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 }

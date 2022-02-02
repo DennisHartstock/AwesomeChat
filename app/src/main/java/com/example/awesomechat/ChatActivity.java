@@ -41,24 +41,40 @@ public class ChatActivity extends AppCompatActivity {
     private EditText messageEditText;
     private Button sendButton;
     private String userName;
+    private String recipientUserId;
+
     private static final int RC_IMAGE_PICKER = 123;
-    FirebaseDatabase database;
-    DatabaseReference messagesDatabaseReference;
-    ChildEventListener messagesChildEventListener;
-    DatabaseReference usersDatabaseReference;
-    ChildEventListener usersChildEventListener;
-    FirebaseStorage storage;
-    StorageReference chatImageStorageReference;
+
+    private FirebaseAuth auth;
+    private FirebaseDatabase database;
+    private FirebaseStorage storage;
+    private DatabaseReference messagesDatabaseReference;
+    private ChildEventListener messagesChildEventListener;
+    private DatabaseReference usersDatabaseReference;
+    private ChildEventListener usersChildEventListener;
+    private StorageReference chatImageStorageReference;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        auth = FirebaseAuth.getInstance();
+
+        Intent intent = getIntent();
+
+        if (intent != null) {
+            userName = intent.getStringExtra("userName");
+            recipientUserId = intent.getStringExtra("recipientUserId");
+        } else {
+            userName = "Unknown";
+        }
+
         database = FirebaseDatabase.getInstance("https://awesome-chat-72589-default-rtdb.europe-west1.firebasedatabase.app/");
+        storage = FirebaseStorage.getInstance();
         messagesDatabaseReference = database.getReference().child("messages");
         usersDatabaseReference = database.getReference().child("users");
-        storage = FirebaseStorage.getInstance();
         chatImageStorageReference = storage.getReference().child("chat_images");
 
         messageListView = findViewById(R.id.messageListView);
@@ -69,9 +85,6 @@ public class ChatActivity extends AppCompatActivity {
         sendImageButton = findViewById(R.id.sendImageButton);
         messageEditText = findViewById(R.id.messageEditText);
         sendButton = findViewById(R.id.sendButton);
-
-        Intent UserNameIntent = getIntent();
-        userName = UserNameIntent.getStringExtra("userName");
 
         progressBar.setVisibility(ProgressBar.INVISIBLE);
 
@@ -108,6 +121,8 @@ public class ChatActivity extends AppCompatActivity {
             AwesomeMessage message = new AwesomeMessage();
             message.setText(messageEditText.getText().toString());
             message.setName(userName);
+            message.setSender(auth.getCurrentUser().getUid());
+            message.setRecipient(recipientUserId);
             message.setImageUrl(null);
 
             messagesDatabaseReference.push().setValue(message);
@@ -119,7 +134,12 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 AwesomeMessage message = snapshot.getValue(AwesomeMessage.class);
-                adapter.add(message);
+
+                if (message.getSender().equals(auth.getCurrentUser().getUid()) && message.getRecipient().equals(recipientUserId)
+                || message.getRecipient().equals(auth.getCurrentUser().getUid()) && message.getSender().equals(recipientUserId)) {
+                    adapter.add(message);
+                }
+
             }
 
             @Override
@@ -218,6 +238,8 @@ public class ChatActivity extends AppCompatActivity {
                     AwesomeMessage message = new AwesomeMessage();
                     message.setImageUrl(downloadUri.toString());
                     message.setName(userName);
+                    message.setSender(auth.getCurrentUser().getUid());
+                    message.setRecipient(recipientUserId);
                     messagesDatabaseReference.push().setValue(message);
                 } else {
                     // Handle failures
