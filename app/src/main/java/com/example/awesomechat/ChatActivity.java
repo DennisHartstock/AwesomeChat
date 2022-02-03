@@ -42,6 +42,7 @@ public class ChatActivity extends AppCompatActivity {
     private Button sendButton;
     private String userName;
     private String recipientUserId;
+    private String recipientUserName;
 
     private static final int RC_IMAGE_PICKER = 123;
 
@@ -67,9 +68,10 @@ public class ChatActivity extends AppCompatActivity {
         if (intent != null) {
             userName = intent.getStringExtra("userName");
             recipientUserId = intent.getStringExtra("recipientUserId");
-        } else {
-            userName = "Unknown";
+            recipientUserName = intent.getStringExtra("recipientUserName");
         }
+
+        setTitle("Chat with " + recipientUserName);
 
         database = FirebaseDatabase.getInstance("https://awesome-chat-72589-default-rtdb.europe-west1.firebasedatabase.app/");
         storage = FirebaseStorage.getInstance();
