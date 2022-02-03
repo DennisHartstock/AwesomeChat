@@ -6,16 +6,18 @@ public class AwesomeMessage {
     private String imageUrl;
     private String sender;
     private String recipient;
+    private boolean isMine;
 
     public AwesomeMessage() {
     }
 
-    public AwesomeMessage(String name, String text, String imageUrl, String sender, String recipient) {
+    public AwesomeMessage(String name, String text, String imageUrl, String sender, String recipient, boolean isMine) {
         this.name = name;
         this.text = text;
         this.imageUrl = imageUrl;
         this.sender = sender;
         this.recipient = recipient;
+        this.isMine = isMine;
     }
 
     public String getName() {
@@ -56,5 +58,13 @@ public class AwesomeMessage {
 
     public void setRecipient(String recipient) {
         this.recipient = recipient;
+    }
+
+    public boolean isMine() {
+        return isMine;
+    }
+
+    public void setMine(boolean mine) {
+        isMine = mine;
     }
 }
